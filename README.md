@@ -1,2 +1,2 @@
 # TheSmartGlove
-May the force be with you, when you wear this glove.
+A school project to map the forces applied to a hand to aid physiotherapists with diagnosis.
