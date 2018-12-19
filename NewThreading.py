@@ -71,14 +71,16 @@ class Plotter(object):
               maxLength: Length of x-axis and data
     """
 
-    def __init__(self, queue, maxLength):
+    def __init__(self, queue, maxLength, **kwargs):
         super(Plotter, self).__init__()
         self.Paused = False
         self.maxLength = maxLength
         self.queue = queue
+        self.lim = kwargs.get('limits' , (-0.1,3.4))
+        self.multiplier = kwargs.get('multiplier' , 1)
         #  set up the graph and axes and do a bunch of formatting
         self.fig = plt.figure()
-        self.axes = plt.axes(xlim=(0, self.maxLength), ylim=(0,1023))
+        self.axes = plt.axes(xlim=(0, self.maxLength), ylim=self.lim)
         self.axes.yaxis.tick_right()
         self.axes.yaxis.set_major_locator(tkr.LinearLocator(numticks=9))
         self.axes.yaxis.set_minor_locator(tkr.AutoMinorLocator(n=5))
@@ -99,8 +101,8 @@ class Plotter(object):
         datalist = self.queue.get()
         try:
             # Append the new data to the list and remove the oldest value
-            self.ampdata = self.ampdata[1:] + [datalist[0]]
-            self.sinedata = self.sinedata[1:] + [datalist[1]]
+            self.ampdata = self.ampdata[1:] + [datalist[0]*self.multiplier]
+            self.sinedata = self.sinedata[1:] + [datalist[1]*self.multiplier]
             # Plot the new data
             self.text.set_text(str(datalist))
             self.a0.set_data(range(self.maxLength), self.ampdata)
@@ -144,6 +146,7 @@ if __name__ == '__main__':
     reader.daemon = True
     print("Starting Thread....")
     reader.start()
+    
 
     # Initialise plotter class
     plot = Plotter(dataqueue, args.maxLength)
