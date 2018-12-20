@@ -14,7 +14,7 @@ To get the code contained in this repository, you can either download it the bor
 
 From the drop-down _Clone or Download_ button, select **Download As ZIP**
 
-[Downloading](./res/Downloading.png)
+![Downloading](./res/Downloading.png)
 
 Find a folder to download the zip into, and unzip by right-clicking and selecting _'unzip"_
 
@@ -69,7 +69,7 @@ python3 NewThreading.py --port COM3 --baud 9600 --len 100
 If the serial port cannot be found, the device is in a different serial port. 
 To find which one it is in, open Device Manager (Control Panel -> Device Manager), and look under _Ports (COM and LPT)_
 
-[Finding The Right Port](./res/serial_port.png)
+![Finding The Right Port](./res/serial_port.png)
 
 Interchange the port in the command line for the port specified under device manager (in this case COM15):
 
