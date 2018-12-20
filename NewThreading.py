@@ -101,8 +101,12 @@ class Plotter(object):
         datalist = self.queue.get()
         try:
             # Append the new data to the list and remove the oldest value
-            self.ampdata = self.ampdata[1:] + [datalist[0]*self.multiplier]
-            self.sinedata = self.sinedata[1:] + [datalist[1]*self.multiplier]
+            # self.ampdata = self.ampdata.remove(0) + [datalist[0]*self.multiplier]
+            # self.sinedata = self.sinedata.remove() + [datalist[1]*self.multiplier]
+            self.ampdata.remove(0)
+            self.sinedata.remove(0)
+            self.ampdata.append(datalist[0]*self.multiplier)
+            self.sinedata.append(datalist[1]*self.multiplier)
             # Plot the new data
             self.text.set_text(str(datalist))
             self.a0.set_data(range(self.maxLength), self.ampdata)
@@ -146,7 +150,7 @@ if __name__ == '__main__':
     reader.daemon = True
     print("Starting Thread....")
     reader.start()
-    
+
 
     # Initialise plotter class
     plot = Plotter(dataqueue, args.maxLength)
