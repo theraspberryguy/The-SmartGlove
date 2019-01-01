@@ -25,9 +25,6 @@ class BluetoothModule(threading.Thread):
         # Exceptions aren't thrown from threads to an interface has to be made to get the errors
         self.exception = None
 
-        # Represent the last valid data point that was recieved
-        self.lastData = [0.0,0.0]
-
     def connect(self):
         # Searches for module name in nearby bluetooth services        
         nearby_devices = bluetooth.discover_devices()
@@ -44,7 +41,7 @@ class BluetoothModule(threading.Thread):
             print ("Could not find your glove nearby.")
 
         try:
-            # self.target_address = '00:06:66:EC:00:8F'
+            #self.target_address = '00:06:66:EC:00:8F'
             self.sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
             self.sock.connect((self.target_address, 1))
             print("And it has just been connected.")
@@ -83,10 +80,13 @@ class BluetoothModule(threading.Thread):
         self.connect()
         
         # Constantly checks for new data and writes to queue
-        while True:
-            for value in self.receiveData():
-                if(value != ''):
-                    self.q.put([float(value), 0.0])
+        while True: 
+            for datapoints in self.receiveData():
+                try:
+                    if(datapoints != ''):
+                        self.q.put([float(x) for x in datapoints.split('/') ])
+                except:
+                    print('Error:', datapoints)
 
     def get_exception(self):
         return self.exception
@@ -96,45 +96,47 @@ class Plotter:
         Args: Queue object that represents incoming data queue
               maxLength: Length of x-axis and data
     """
-    def __init__(self, queue, maxLength):
-        super(Plotter, self).__init__()
+    def __init__(self, queue, maxLength, numSensors):
         self.Paused = False
         self.maxLength = maxLength
         self.queue = queue
+        self.numSensors = numSensors
         #  set up the graph and axes and do a bunch of formatting
         self.fig = plt.figure()
         self.axes = plt.axes(xlim=(0,self.maxLength), ylim=(0.0,3.4))
         self.axes.yaxis.tick_right()
         self.axes.yaxis.set_major_locator(tkr.LinearLocator(numticks=10))
         self.axes.yaxis.set_minor_locator(tkr.AutoMinorLocator())
-        self.ampdata = [0.0]*self.maxLength
-        self.sinedata = [0.0]*self.maxLength
-        self.a0, = self.axes.plot(range(self.maxLength),self.ampdata)
-        self.a1, = self.axes.plot(range(self.maxLength),self.sinedata)
+
+        # Dynamic number of sensors
+        self.sensorData = [[0.0]*self.maxLength]*self.numSensors
+        self.sensors = []
+
+        # Mulitple graphs setup
+        for x in range(0,self.numSensors):
+            self.sensor, = self.axes.plot(range(self.maxLength),self.sensorData[x])
+            self.sensors.append(self.sensor)
+
         self.cid = self.fig.canvas.mpl_connect('key_press_event', self.OnSpace)
 
     # This function updates the graph every time FuncAnimation calls it
 
     def update(self, i):
         if self.Paused:
-            return self.a0, self.a1
-        # Monitor Queue size
-        #print(self.queue.qsize())
+            return (x for x in self.sensors)
         # Get (and remove) first item in queue
         datalist = self.queue.get()
         try:
-            # Append the new data to the list and remove the oldest value
-            self.ampdata = self.ampdata[1:] + [datalist[0]*3.3]
-            self.sinedata = self.sinedata[1:] + [datalist[1]*3.3]
             # Plot the new data
-            self.a0.set_data(range(self.maxLength), self.ampdata)
-            self.a1.set_data(range(self.maxLength), self.sinedata)
+            for x in range(0,self.numSensors):
+                 self.sensorData[x] = self.sensorData[x][1:] + [datalist[x]*3.3]
+                 self.sensors[x].set_data(range(self.maxLength), self.sensorData[x])
         except Exception as e:
             print(str(e))
-        # return the portions of the graph that have changed in order to blit
-        return self.a0, self.a1
+        # Return the portions of the graph that have changed in order to blit
+        return (x for x in self.sensors)
 
-    #Function that is called on spacebar pressed
+    # Function that is called on spacebar pressed
     def OnSpace(self, event):
         if event.key == ' ':
             self.Paused = not self.Paused
@@ -153,12 +155,13 @@ if __name__ == '__main__':
     targetName = "RNBT-008F"
     reader = BluetoothModule(targetName, dataqueue)
     reader.daemon = True
-    print("Starting Thread....")
+    print("Starting...")
     reader.start()
 
     # Initialise plotter class
     maxLength = 100
-    plot = Plotter(dataqueue, maxLength)
+    numSensors = 6
+    plot = Plotter(dataqueue, maxLength, numSensors)
 
     # define the animation to run (calls plot.update every 1 ms with blitting)
     anim = animation.FuncAnimation(plot.fig, plot.update, interval=1, blit=True)
