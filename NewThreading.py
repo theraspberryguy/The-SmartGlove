@@ -10,6 +10,7 @@ import os
 import matplotlib.text as txt
 import numpy as np
 import csv
+from matplotlib.widgets import TextBox
 
 
 class SerialReader(threading.Thread):
@@ -93,7 +94,7 @@ class Plotter(object):
         self.a1, = self.axes.plot(range(self.maxLength), self.sinedata)
         self.cid = self.fig.canvas.mpl_connect('key_press_event', self.OnSpace)
         self.text = plt.text(9.2,0.7, 'Hello What happening')
-        self.axbox = plt.axes(axbox = plt.axes([0.1, 0.05, 0.8, 0.075]))
+        self.axbox = plt.axes([0.1, 0.05, 0.8, 0.075])
         self.text_box = TextBox(self.axbox, 'Evaluate', initial="")
         self.text_box.on_submit(self.submit)
 
@@ -107,16 +108,11 @@ class Plotter(object):
         datalist = self.queue.get()
         try:
             # Append the new data to the list and remove the oldest value
-            # self.ampdata = self.ampdata.remove(0) + [datalist[0]*self.multiplier]
-            # self.sinedata = self.sinedata.remove() + [datalist[1]*self.multiplier]
-            self.ampdata.remove(0)
-            self.sinedata.remove(0)
-            self.ampdata.append(datalist[0]*self.multiplier)
-            self.sinedata.append(datalist[1]*self.multiplier)
+            self.ampdata = self.ampdata[1:] + [datalist[0] * self.multiplier]
+            self.sinedata = self.sinedata[1:] + [datalist[1] * self.multiplier]
             # Plot the new data
-            self.text.set_text(str(datalist))
             self.a0.set_data(range(self.maxLength), self.ampdata)
-            self.a1.set_data(range(self.maxLength), self.sinedata)
+            self.a1.set_data(range(self.maxLength), self.sinedata *self.multiplier)
         except Exception as e:
             print(str(e))
         # return the portions of the graph that have changed in order to blit
@@ -130,7 +126,7 @@ class Plotter(object):
                 with self.queue.mutex:
                     self.queue.queue.clear()
 
-    def submit(text):
+    def submit(self, text):
         t = np.average(self.ampdata[5:])
         with open('dataout.csv', 'a', newline='') as file:
             writer=csv.writer(file)
