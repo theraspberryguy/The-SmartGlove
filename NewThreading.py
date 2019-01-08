@@ -8,6 +8,8 @@ import serial
 from time import sleep
 import os
 import matplotlib.text as txt
+import numpy as np
+import csv
 
 
 class SerialReader(threading.Thread):
@@ -80,6 +82,7 @@ class Plotter(object):
         self.multiplier = kwargs.get('multiplier' , 1)
         #  set up the graph and axes and do a bunch of formatting
         self.fig = plt.figure()
+        plt.subplots_adjust(bottom=0.2) #or self.fig.subplots_adjust()
         self.axes = plt.axes(xlim=(0, self.maxLength), ylim=self.lim)
         self.axes.yaxis.tick_right()
         self.axes.yaxis.set_major_locator(tkr.LinearLocator(numticks=9))
@@ -90,6 +93,9 @@ class Plotter(object):
         self.a1, = self.axes.plot(range(self.maxLength), self.sinedata)
         self.cid = self.fig.canvas.mpl_connect('key_press_event', self.OnSpace)
         self.text = plt.text(9.2,0.7, 'Hello What happening')
+        self.axbox = plt.axes(axbox = plt.axes([0.1, 0.05, 0.8, 0.075]))
+        self.text_box = TextBox(self.axbox, 'Evaluate', initial="")
+        self.text_box.on_submit(self.submit)
 
     # This function updates the graph every time FuncAnimation calls it
     def update(self, i):
@@ -123,6 +129,12 @@ class Plotter(object):
             if not self.Paused:
                 with self.queue.mutex:
                     self.queue.queue.clear()
+
+    def submit(text):
+        t = np.average(self.ampdata[5:])
+        with open('dataout.csv', 'a', newline='') as file:
+            writer=csv.writer(file)
+            writer.writerow([text, t])
 
 
 def beginparser():
