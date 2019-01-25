@@ -27,7 +27,7 @@ class BluetoothModule(threading.Thread):
 
     def connect(self):
         # Searches for module name in nearby bluetooth services        
-        nearby_devices = bluetooth.discover_devices()
+        '''nearby_devices = bluetooth.discover_devices()
         
         for addr in nearby_devices:
             if self.targetName == bluetooth.lookup_name( addr ):
@@ -38,10 +38,10 @@ class BluetoothModule(threading.Thread):
         if self.target_address is not None:
             print("Your glove has been detected with address ", self.target_address, ".")
         else:
-            print ("Could not find your glove nearby.")
+            print ("Could not find your glove nearby.")'''
 
         try:
-            #self.target_address = '00:06:66:EC:00:8F'
+            self.target_address = '00:14:03:06:73:A0'
             self.sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
             self.sock.connect((self.target_address, 1))
             print("And it has just been connected.")
@@ -54,6 +54,7 @@ class BluetoothModule(threading.Thread):
 
         # Reads and decodes data received from Bluetooth socket
         bytes = self.sock.recv(1024)
+        print(bytes)
         parsedString = bytes.decode("utf-8")
         print(parsedString)
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
     dataqueue = queue.Queue()
 
     # Initialise SerialReader and set it to kill program if only it is left (when main thread dies)
-    targetName = "RNBT-008F"
+    targetName = "The SmartGlove"
     reader = BluetoothModule(targetName, dataqueue)
     reader.daemon = True
     print("Starting...")
