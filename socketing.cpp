@@ -98,6 +98,7 @@ int main(int argc, char const *argv[]) {
 
     char* buffer = 0;
     for(;;) {
+      std::cout << "REading" << '\n';
       readLine(tcp_sock, buffer, sizeof(buffer));
       std::cout << buffer << '\n';
       delete [] buffer;

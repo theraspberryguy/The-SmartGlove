@@ -8,7 +8,7 @@ import socket
 class BluetoothSocket(threading.Thread):
     """Bluetooth Reader class that provides an interface to read from a
         bluetooth port and write to a queue on a separate threadself.
-        Arguments: targetName{string} the bluetooth name of module 
+        Arguments: targetName{string} the bluetooth name of module
                    q{queue.Queue object} the queue to write"""
     def __init__(self, targetName, dataqueue):
 
@@ -23,9 +23,9 @@ class BluetoothSocket(threading.Thread):
         self.exception = None
 
     def connect(self):
-        # Searches for module name in nearby bluetooth services        
+        # Searches for module name in nearby bluetooth services
         '''nearby_devices = bluetooth.discover_devices()
-        
+
         for addr in nearby_devices:
             if self.targetName == bluetooth.lookup_name( addr ):
                 self.target_address = addr
@@ -66,7 +66,7 @@ class BluetoothSocket(threading.Thread):
                 self.lastData = parsedString
         except:
                 pass
-                
+
         return self.currDataArray
 
     def run(self):
@@ -75,10 +75,10 @@ class BluetoothSocket(threading.Thread):
 
         # Establishes connection with module
         self.connect()
-        
+
         # Constantly checks for new data and writes to queue
         try:
-            while True: 
+            while True:
                 for datapoints in self.receiveData():
                     try:
                         if(datapoints != ''):
@@ -96,9 +96,9 @@ class LocalSocket:
         super(LocalSocket, self).__init__()
         self.queue = q
 
-        self.s = socket.socket() 
+        self.s = socket.socket()
         self.port = 12345
-    
+
     def connect(self):
         self.s.bind(('127.0.0.1', self.port))
         self.s.listen(5)
@@ -127,8 +127,11 @@ if __name__ == '__main__':
     targetName = "The SmartGlove"
     reader = BluetoothSocket(targetName, dataqueue)
     reader.daemon = True
+    print("started module")
 
     # Main logic
+    print("started stuff")
     s.connect()
+    print("finished connecting")
     reader.start()
     s.startTransfer()
