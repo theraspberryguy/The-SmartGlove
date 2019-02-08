@@ -78,7 +78,7 @@ class Plotter(object):
         self.queue = queue
         #  set up the graph and axes and do a bunch of formatting
         self.fig = plt.figure()
-        self.axes = plt.axes(xlim=(0, self.maxLength), ylim=(0,1023))
+        self.axes = plt.axes(xlim=(0, self.maxLength), ylim=(0,3.3))
         self.axes.yaxis.tick_right()
         self.axes.yaxis.set_major_locator(tkr.LinearLocator(numticks=9))
         self.axes.yaxis.set_minor_locator(tkr.AutoMinorLocator(n=5))
@@ -99,8 +99,8 @@ class Plotter(object):
         datalist = self.queue.get()
         try:
             # Append the new data to the list and remove the oldest value
-            self.ampdata = self.ampdata[1:] + [datalist[0]]
-            self.sinedata = self.sinedata[1:] + [datalist[1]]
+            self.ampdata = self.ampdata[1:] + [datalist[0]*3.3]
+            self.sinedata = self.sinedata[1:] + [datalist[1]*3.3]
             # Plot the new data
             self.text.set_text(str(datalist))
             self.a0.set_data(range(self.maxLength), self.ampdata)
