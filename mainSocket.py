@@ -44,7 +44,8 @@ class BluetoothSocket(threading.Thread):
         # Reads and decodes data received from Bluetooth socket
         bytes = self.sock.recv(1024)
         parsedString = bytes.decode("utf-8")
-        #print(parsedString)
+
+        # print(parsedString)
 
         # Manipulates data into specific datapoints for plotting
         # with '-' being used as delimiter between datapoints
@@ -54,6 +55,7 @@ class BluetoothSocket(threading.Thread):
                 self.currData = self.lastData + parsedString[0:lastPos]
                 self.lastData = parsedString[lastPos+1:]
                 self.currDataArray = self.currData.split('-')
+                # print(self.currDataArray)
             else:
                 self.lastData = parsedString
         except:
@@ -108,13 +110,15 @@ class LocalSocket:
     def startTransfer(self):
         print(self.c)
         while True:
-            sleep(0.01)
+            sleep(0.00)
             try:
                 self.lastdata = self.queue.get(block=False)
                 self.c.send((str(self.lastdata)[1:-1] +'' '\n').encode('ascii'))
-                # print(self.queue.qsize())
+                print((str(self.lastdata)[1:-1] +'' '\n').encode('ascii'))
+                print(self.queue.qsize())
                 print(repr(str(self.lastdata)[1:-1] +'' '\n').encode('ascii'))
             except queue.Empty:
+                # print("no data sending placeholder")
                 self.c.send((str(self.lastdata)[1:-1] +'' '\n').encode('ascii'))
                 continue;
             except Exception as e:
