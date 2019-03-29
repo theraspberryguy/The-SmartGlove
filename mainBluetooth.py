@@ -70,7 +70,7 @@ class BluetoothModule(threading.Thread):
                 self.lastData = parsedString
         except:
                 pass
-                
+        print(self.currDataArray)
         return self.currDataArray
 
     def run(self):
