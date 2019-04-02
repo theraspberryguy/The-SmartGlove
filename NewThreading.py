@@ -127,7 +127,7 @@ class Plotter(object):
                     self.queue.queue.clear()
 
     def submit(self, text):
-        t = np.average(self.ampdata[5:])
+        t = np.average(self.ampdata[-5:])
         with open('dataout.csv', 'a', newline='') as file:
             writer=csv.writer(file)
             writer.writerow([text, t])
