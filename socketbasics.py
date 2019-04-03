@@ -8,11 +8,13 @@ mill = lambda: int(round(time.time()*1000))
 t = mill()
 s = socket.socket()
 
-s.bind(('127.0.0.1', 12345))
+s.bind(('192.168.1.8', 12345))
 
 s.listen(5)
 
 c, addr = s.accept()
+print(c)
+print(s)
 
 c.settimeout(30)
 
@@ -28,7 +30,8 @@ while True:
         e = math.sin((v/100)+x*5)
         f = math.sin((v/100)+x*6)
         c.send((str(a) + ',' + str(b) + ','+ str(_c) + ','+ str(d) + ','+ str(e) + ','+ str(f) + '\n').encode('ascii'))
-        time.sleep(0.001)
+        print((str(a) + ',' + str(b) + ','+ str(_c) + ','+ str(d) + ','+ str(e) + ','+ str(f) + '\n').encode('ascii'))
+        time.sleep(0.01)
     except Exception as e:
         print(e)
         c.close()

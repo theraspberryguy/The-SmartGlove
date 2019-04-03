@@ -5,6 +5,8 @@ from time import sleep
 import os
 import socket
 
+
+isconnected = False
 class BluetoothSocket(threading.Thread):
     """Bluetooth Reader class that provides an interface to read from a
         bluetooth port and write to a queue on a separate threadself.
@@ -76,7 +78,11 @@ class BluetoothSocket(threading.Thread):
                 for datapoints in self.receiveData():
                     try:
                         if(datapoints != ''):
-                            self.q.put([float(x) for x in datapoints.split('/') ])
+                            if(isconnected):
+                                self.q.put([float(x) for x in datapoints.split('/') ])
+                            else:
+                                print("Not connected")
+                                print(datapoints)
                     except:
                         print('Error:', datapoints)
         except:
@@ -93,12 +99,12 @@ class LocalSocket:
         self.s = socket.socket()
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print("Done")
-        self.port = 12345
+        self.port = 12222
         self.lastdata = 0
 
     def connect(self):
         print("binding")
-        self.s.bind(('127.0.0.1', self.port))
+        self.s.bind(('192.168.1.8', self.port))
         print("waiting for connections")
         self.s.listen(5)
         self.c, addr = self.s.accept()
@@ -110,7 +116,7 @@ class LocalSocket:
     def startTransfer(self):
         print(self.c)
         while True:
-            sleep(0.00)
+            sleep(0.01)
             try:
                 self.lastdata = self.queue.get(block=False)
                 self.c.send((str(self.lastdata)[1:-1] +'' '\n').encode('ascii'))
@@ -142,5 +148,6 @@ if __name__ == '__main__':
     # Main logic
     reader.start()
     s.connect()
+    isconnected = True
 
     s.startTransfer()

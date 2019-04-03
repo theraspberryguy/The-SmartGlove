@@ -146,7 +146,7 @@ if __name__ == '__main__':
     reader.start()
 
     # Initialise plotter class
-    plot = Plotter(dataqueue, args.maxLength)
+    plot = Plotter(dataqueue, args.maxLength, 6)
 
     # define the animation to run (calls plot.update every 1 ms with blitting)
     anim = animation.FuncAnimation(
