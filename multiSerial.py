@@ -9,8 +9,8 @@ def beginparser():
     Return type dictionary of arguments
     """
     parser = argparse.ArgumentParser(description="SerialPlotter")
-    parser.add_argument('--port', dest='port', required=True)
-    parser.add_argument('--baud', dest='baudrate', required=True, type=int)
+    parser.add_argument('--port', dest='port', default='COM3')
+    parser.add_argument('--baud', dest='baudrate', default=115200, type=int)
     parser.add_argument('--len', dest='maxLength', default=100, type=int)
     args = parser.parse_args()
     return args
